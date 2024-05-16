@@ -6,9 +6,7 @@ CSEMachine::CSEMachine(){
     //create the primary enviorement and add it to the environmentStack
     PE = createEnv();
     environmentStack.push(PE);
-    //To hold all the control structures
     deltas = new vector<Control *>;
-    //create delta 0 control structure
     rootDelta = new Control(Control::DELTA, deltas->size());
 }
 
@@ -30,7 +28,7 @@ Environment* CSEMachine::createEnv(){
 
 //Executes code when given root node of AST
 void CSEMachine::run(treeNode *root){
-    init(root); //to setup environments and data structures
+    init(root); 
     ExecuteCSEM();
     if(!control.empty() || environmentStack.size() != 1){
         cout << "Control Stack or Environment Stack was not emptied"<< endl;
@@ -135,8 +133,6 @@ void CSEMachine::ExecuteCSEM(){
     }
 }
 
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////
 
 //Initializes, calls function to flatten AST, sets up env stack
@@ -220,17 +216,18 @@ void CSEMachine::toFlattenTernary(treeNode* node, Control *delta,vector<Control 
     delta->ctrlStruct->push_back(new Control(Control::BETA, "beta"));
     delta->createControlObj(node->child, NULL, NULL, deltas->size());
     if(node->child->child != NULL)
-        toFlattenTree(node->child->child, delta, deltas);
+    toFlattenTree(node->child->child, delta, deltas);
 }
 
-//Flattens delta - then segment
-void CSEMachine::toFlattenDThen(treeNode* node, Control *delta,vector<Control *> *deltas){
+// This function flattens a delta control structure, then processes its 'then' segment.
+void CSEMachine::toFlattenDThen(treeNode* node, Control *delta, vector<Control *> *deltas){
     Control *deltaThen = new Control(Control::DELTA, deltas->size());
     deltas->push_back(deltaThen);
     delta->ctrlStruct->push_back(new Control(Control::DELTA, deltas->size()-1)); 
+
     if(node->child->sibling->type == treeNode::TERNARY){
         toFlattenTree(node->child->sibling, deltaThen, deltas);
-    }else{
+    } else {
         vector<string> *tempvariables = NULL;
         if(node->child->sibling->type == treeNode::TAU){
             treeNode *temp = node->child->sibling->child;
@@ -240,6 +237,7 @@ void CSEMachine::toFlattenDThen(treeNode* node, Control *delta,vector<Control *>
                 temp = temp->sibling;
             }
         }
+        // Create a new Control object representing the 'then' segment of the delta control structure
         deltaThen->createControlObj(node->child->sibling, tempvariables, deltaThen, deltas->size());
         if(node->child->sibling->child != NULL)
             toFlattenTree(node->child->sibling->child, deltaThen, deltas);
@@ -247,33 +245,34 @@ void CSEMachine::toFlattenDThen(treeNode* node, Control *delta,vector<Control *>
 }
 
 
-//Flattens delta- else segment
-void CSEMachine::toFlattenDElse(treeNode* node, Control *delta,vector<Control *> *deltas){
+
+// Flattens the delta-else segment
+void CSEMachine::toFlattenDElse(treeNode* node, Control *delta, vector<Control *> *deltas) {
     Control *deltaElse = new Control(Control::DELTA, deltas->size());
     deltas->push_back(deltaElse);
     delta->ctrlStruct->push_back(new Control(Control::DELTA, deltas->size()-1));
 
-    if(node->child->sibling->sibling->type == treeNode::TERNARY){
-        toFlattenTree(node->child->sibling->sibling,deltaElse, deltas);
-    }else{
+    // Check if the node's child's sibling's sibling is of type ternary
+    if (node->child->sibling->sibling->type == treeNode::TERNARY) {
+        toFlattenTree(node->child->sibling->sibling, deltaElse, deltas);
+    } else {
         vector<string> *tempvariables = NULL;
-        if(node->child->sibling->sibling->type == treeNode::TAU){
+        if (node->child->sibling->sibling->type == treeNode::TAU) {
             treeNode *temp = node->child->sibling->sibling->child;
             tempvariables = new vector<string>;
-            while(temp!= NULL){
+            while (temp != NULL) {
                 tempvariables->push_back(temp->nodeString);
                 temp = temp->sibling;
             }
         }
         deltaElse->createControlObj(node->child->sibling->sibling, tempvariables, deltaElse, deltas->size());
-        if(node->child->sibling->sibling->child != NULL)
-            toFlattenTree(node->child->sibling->sibling->child,deltaElse, deltas);
+        if (node->child->sibling->sibling->child != NULL)
+            toFlattenTree(node->child->sibling->sibling->child, deltaElse, deltas);
     }
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //Handles Names
 void CSEMachine::Name(Control* temp, Control* currControl, Control* rator, Environment* newEnv, int deltaIndex){
@@ -645,6 +644,7 @@ void CSEMachine::applyRule10(Control* temp, Control* currControl, Control* rator
     }
 }
 
+// Function to apply Rule 4 and Rule 11 of the CSEMachine
 void CSEMachine::applyRule4and11(Control* temp, Control* currControl, Control* rator, Environment* newEnv, int deltaIndex){
     newEnv = createEnv();
     newEnv->ParentEnvironment(environmentMap.find(rator->associatedENV)->second);
@@ -674,21 +674,35 @@ void CSEMachine::applyRule4and11(Control* temp, Control* currControl, Control* r
     }
 }
 
-void CSEMachine::applyRule12(Control* temp, Control* currControl, Control* rator, Environment* newEnv, int deltaIndex){
-    Control *eta = new Control(execStack.top()) ;
-    execStack.pop();
-    eta->type = Control::ETA;
-    execStack.push(eta);
+// This function implements Rule 12 within the context of a CSEMachine.
+// It involves manipulating the execution stack by creating and pushing a new ETA control.
+
+void CSEMachine::applyRule12(Control* temp, Control* currControl, Control* rator, Environment* newEnv, int deltaIndex) {
+    // Create a new ETA control copying the top control from the execution stack
+    Control *eta = new Control(execStack.top());
+    execStack.pop(); 
+    eta->type = Control::ETA; 
+    execStack.push(eta); 
 }
 
-void CSEMachine::applyRule13(Control* temp, Control* currControl, Control* rator, Environment* newEnv, int deltaIndex){
+
+// This function applies a specific rule, called Rule 13, within the context of a CSEMachine.
+// It involves manipulating the control stack and execution stack to execute certain operations.
+
+void CSEMachine::applyRule13(Control* temp, Control* currControl, Control* rator, Environment* newEnv, int deltaIndex) {
+    // Push two GAMMA controls onto the control stack
     control.push_back(new Control(Control::GAMMA));
     control.push_back(new Control(Control::GAMMA));
+    
+    // Push the 'rator' control onto the execution stack
     execStack.push(rator);
-    Control *lambda = new Control(Control::LAMBDA, &(rator->variables), NULL, rator->index) ;
+    
+    // Create a new LAMBDA control with relevant data and push onto the execution stack
+    Control *lambda = new Control(Control::LAMBDA, &(rator->variables), NULL, rator->index);
     lambda->associatedENV = rator->associatedENV;
     execStack.push(lambda);
 }
+
 
 //To apply built-in operators or functions
 void CSEMachine::applyThisRator(Control* rator){
@@ -794,30 +808,33 @@ void CSEMachine::applyThisRator(Control* rator){
 }
 
 
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSEMachine::escapePrintStr(string printStr){
-  for( int i = 0 ; i < printStr.length() ; i++ ){
-  char ch1 = printStr.at(i) ;
-    if( ch1 == '\\'){
-      i++ ;
-      if( i < printStr.length() ){
-        char ch2 = printStr.at(i) ;
-        if( ch2 == 'n' )
-      cout << endl;
-        else if( ch2 == 't' )
-      cout << "\t" ;
+// This function takes a string as input and prints it to the console, 
+// while interpreting escape sequences '\n' as newline and '\t' as tab.
+
+void CSEMachine::escapePrintStr(string printStr) {
+  for (int i = 0; i < printStr.length(); i++) {
+    char ch1 = printStr.at(i);
+    if (ch1 == '\\') {
+      i++; 
+      if (i < printStr.length()) {
+        char ch2 = printStr.at(i);
+        if (ch2 == 'n')
+          cout << endl; 
+        else if (ch2 == 't')
+          cout << "\t"; 
         else
-      cout <<  ch1 << ch2 ;
+          cout << ch1 << ch2; 
       }
+    } else {
+
+      cout << ch1;
     }
-    else
-      cout << ch1 ;
-    }
-    cout.flush();
+  }
+  cout.flush();
 }
+
 
 
 
