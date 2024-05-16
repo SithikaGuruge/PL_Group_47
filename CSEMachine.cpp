@@ -694,10 +694,9 @@ void CSEMachine::applyRule13(Control* temp, Control* currControl, Control* rator
     control.push_back(new Control(Control::GAMMA));
     control.push_back(new Control(Control::GAMMA));
     
-    // Push the 'rator' control onto the execution stack
+    
     execStack.push(rator);
     
-    // Create a new LAMBDA control with relevant data and push onto the execution stack
     Control *lambda = new Control(Control::LAMBDA, &(rator->variables), NULL, rator->index);
     lambda->associatedENV = rator->associatedENV;
     execStack.push(lambda);
