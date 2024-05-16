@@ -8,50 +8,58 @@ using namespace std;
 
 ifstream src;
 
-
-void exec() {
+void exec()
+{
 	// get the output of lexical analyser and start parsing
-	lexAnalyser* rpalLexer = new lexAnalyser(&src);
-	parser* rpalParser = new parser(rpalLexer);
+	lexAnalyser *rpalLexer = new lexAnalyser(&src);
+	parser *rpalParser = new parser(rpalLexer);
 	rpalParser->process();
-	
 }
-void exec_ast() {
+void exec_ast()
+{
 	// get the output of lexical analyser and start parsing
-	lexAnalyser* rpalLexer = new lexAnalyser(&src);
-	parser* rpalParser = new parser(rpalLexer);
+	lexAnalyser *rpalLexer = new lexAnalyser(&src);
+	parser *rpalParser = new parser(rpalLexer);
 	rpalParser->process_ast();
-	
 }
 
-int main (int argc, char *argv[]){
-	if (argc == 2){  // console arguments : rpal20, filename
-	    char* fname = argv[argc-1];
-	    src.open(fname);
+int main(int argc, char *argv[])
+{
+	if (argc == 2)
+	{ // console arguments : rpal20, filename
+		char *fname = argv[argc - 1];
+		src.open(fname);
 		// check the input file is okay
-	    if (!src.good()){			
-	        printf ("File \"%s\" is not available in the directory\n", fname);
-	        return 0;
-	    }	   
-		// exec();
+		if (!src.good())
+		{
+			printf("File \"%s\" is not available in the directory\n", fname);
+			return 0;
+		}
+
 		exec();
 		src.close();
 	}
-	
-	
-	else if(argc == 3){
-		char* fname = argv[argc-1];
-	    src.open(fname);
-		if(strcmp(argv[1], "-ast") == 0){
-				exec_ast();
-		}
-		else{
-			printf ("Prompt: ./rpal20 -ast <filename>");
-		}
-	}
-	else {
-		printf ("Prompt: ./rpal20 <filename>\n\n");
-	}
-	
-}
 
+	else if (argc == 3)
+	{ // console arguments : rpal20, filename, -ast
+		char *fname = argv[argc - 1];
+		src.open(fname);
+		if (!src.good())
+		{
+			printf("File \"%s\" is not available in the directory\n", fname);
+			return 0;
+		}
+		if (strcmp(argv[1], "-ast") == 0)
+		{
+			exec_ast();
+		}
+		else
+		{
+			printf("Prompt: ./rpal20 -ast <filename>");
+		}
+	}
+	else
+	{
+		printf("Prompt: ./rpal <filename>\n for print the value or add -ast for print the AST\n");
+	}
+}
