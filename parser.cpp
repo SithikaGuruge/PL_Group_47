@@ -1,5 +1,3 @@
-
-
 #include "parser.h"
 int depthhh = 0;
 
@@ -11,18 +9,20 @@ parser::parser(lexAnalyser* lxr){
 parser::~parser() {
 }
 
+// process the printing abstract syntax tree
 void parser::process_ast(){
 	parse();
 	printNode(stk_of_tree.top(),0);
 }
 
+// process the printing the value
 void parser::process(){
 	parse();
 	TreeStandardizer *ts = new TreeStandardizer(stk_of_tree.top());
 	CSEMachine* cs_mac = new CSEMachine();
 	cs_mac->run(stk_of_tree.top());
 }
-// **************************************here
+
 void parser::parse(){
 	// parsing stage
 		while (true) {
@@ -31,7 +31,7 @@ void parser::parse(){
         break;
     }
 }
-	sym_E(); 
+	procedure_E(); 
 }
 
 void parser::printNode(treeNode* node, int depth = 0) {
@@ -85,27 +85,27 @@ while (nxtTok->tokType == TOK_DELETE) {
 
 void parser::constructTree(string string_for_node, int childCount, int node_type) {
 	// constructing the syntax tree
-     treeNode* N_new = new treeNode();
+     treeNode* new_node = new treeNode();
     
-    N_new->nodeString = string_for_node;
-    N_new->type = node_type;
-	 int temp = stk_of_tree.size() ;
-	 treeNode* N_temp = nullptr;
-	 int total=temp - childCount + 1;
+    new_node->nodeString = string_for_node;
+    new_node->type = node_type;
+	int stack_size = stk_of_tree.size() ;
+	treeNode* temporary_Node = nullptr;
+	int total=stack_size - childCount + 1;
     
 
     if (childCount == 0) {
-        stk_of_tree.push(N_new);
+        stk_of_tree.push(new_node);
     	 return;
     }
 
     if (!stk_of_tree.empty()) {
          while (childCount > 1) {
             if (!stk_of_tree.empty()) {
-                N_temp = stk_of_tree.top();
+                temporary_Node = stk_of_tree.top();
                 stk_of_tree.pop();
                 if (!stk_of_tree.empty()) {
-                    stk_of_tree.top()->sibling = N_temp;
+                    stk_of_tree.top()->sibling = temporary_Node;
                 } else { 
 					   throw std::runtime_error("Error"); //exit the process
                 }
@@ -114,42 +114,42 @@ void parser::constructTree(string string_for_node, int childCount, int node_type
                return;
             }
         }
-        N_temp = stk_of_tree.top();
-        N_new->child = N_temp;
+        temporary_Node = stk_of_tree.top();
+        new_node->child = temporary_Node;
         stk_of_tree.pop();
     } else {
        return;
     }
 
-    stk_of_tree.push(N_new);
+    stk_of_tree.push(new_node);
 
    }
 
 /* E -> ’let’ D ’in’ E                     => ’let’
-     -> ’fn’ Vb+ ’.’ E                        => ’lambda’
+     -> ’fn’ Vb+ ’.’ E                     => ’lambda’
      ->  Ew;
 */
 
 
-void parser::sym_E() {
+void parser::procedure_E() {
     if (nxtTok->value_token == "let") {
         peruse("let");
-        sym_D();
+        procedure_D();
         peruse("in");
-        sym_E();
+        procedure_E();
         buildLetTree();
     } else if (nxtTok->value_token == "fn") {
         peruse("fn");
         int n = 0;
         while (nxtTok->value_token == "(" || nxtTok->tokType == TOK_IDENTIFIER) {
-            sym_Vb();
+            procedure_Vb();
             n++;
         }
         peruse(".");
-        sym_E();
+        procedure_E();
         buildLambdaTree(n);
     } else {
-        sym_Ew();
+        procedure_Ew();
     }
 }
 
@@ -157,34 +157,34 @@ void parser::buildLetTree() {
     constructTree("let", 2, treeNode::LET);
 }
 
-void parser::buildLambdaTree(int numParams) {
-    constructTree("lambda", numParams + 1, treeNode::LAMBDA);
+void parser::buildLambdaTree(int numberOfArgs) {
+    constructTree("lambda", numberOfArgs + 1, treeNode::LAMBDA);
 }
 
 /* Ew   -> T ’where’ Dr                       => ’where’
-   -> T;*/
+   		-> T;	*/
 
- void parser::sym_Ew(){
-	sym_T();
+ void parser::procedure_Ew(){
+	procedure_T();
 	string phrase="where";
  	if (nxtTok->value_token == phrase)
  	{
  		peruse(phrase);
- 	 	sym_Dr();
+ 	 	procedure_Dr();
  	 	constructTree(phrase,2, treeNode::WHERE);
  	}
  }
 
-  /* T    -> Ta ( ’,’ Ta )+                          => ’tau’
-     -> Ta ;
+  /* T    	-> Ta ( ’,’ Ta )+                          => ’tau’
+     		-> Ta ;
   */
- void parser::sym_T(){
+ void parser::procedure_T(){
 	  int inc = 0;
-	 sym_Ta();
+	 procedure_Ta();
 	 if (nxtTok->value_token == ","){
 		 do {
 			 peruse(",");
-			 sym_Ta();
+			 procedure_Ta();
 			 inc=inc+1;
 		 }while (nxtTok->value_token == ",");
 		 constructTree("tau", inc+1, treeNode::TAU);
@@ -194,68 +194,69 @@ void parser::buildLambdaTree(int numParams) {
 
 
 /* Tc   -> B ’->’ Tc ’|’ Tc                      => '->'
-     -> B ;
+     	-> B ;
   */
- void parser::sym_Tc(){
-	 	 sym_B();
+ void parser::procedure_Tc(){
+	 	 procedure_B();
 	 if (nxtTok->value_token == "->"){
 		 peruse("->");
-		 sym_Tc();
+		 procedure_Tc();
 		 peruse("|");
-		 sym_Tc();
+		 procedure_Tc();
 		 constructTree("->", 3, treeNode::TERNARY);
 	 }
  }
 
 
 /* Ta   -> Ta ’aug’ Tc                             => ’aug’
-     -> Tc ;
+     	-> Tc ;
   */
- void parser::sym_Ta(){
-	 	 sym_Tc();
+ void parser::procedure_Ta(){
+	 	 procedure_Tc();
 	 string phrase="aug";
 	 while (nxtTok->value_token == phrase){
 		 peruse(phrase);
-		 sym_Tc();
+		 procedure_Tc();
 		 constructTree(phrase, 2, treeNode::AUG);
 	 }
  }
 
 
  /* Bs   -> ’not’ Bp                                => ’not’
-     -> Bp 	*/
-void parser::sym_Bs(){
+     	 ->  Bp 	*/
+
+void parser::procedure_Bs(){
 	string phrase="not";
 	if (nxtTok->value_token == phrase){
 		peruse (phrase);
-		sym_Bp();
+		procedure_Bp();
 		constructTree(phrase, 1, treeNode::NOT);
 	}else {
-		sym_Bp();
+		procedure_Bp();
 	}
 }
 
-/* B    -> B ’or’ Bt                               => ’or’
-     -> Bt ;
+/* 	B    -> B ’or’ Bt                               => ’or’
+    	 -> Bt ;
   */
-void parser::sym_B(){
-		sym_Bt();
+void parser::procedure_B(){
+		procedure_Bt();
 	string phrase="or";
 	while (nxtTok->value_token == phrase){
 		peruse (phrase);
-		sym_Bt();
+		procedure_Bt();
 		constructTree(phrase, 2, treeNode::OR);
 	}
 }
 
 /*  Bt  -> Bt ’&’ Bs                               => ’&’
-     -> Bs 	*/
-void parser::sym_Bt(){
-		sym_Bs();
+     	-> Bs 	*/
+void parser::procedure_Bt(){
+		procedure_Bs();
 		string phrase="&";
 	while (nxtTok->value_token == phrase){
 		peruse(phrase);
-		sym_Bs();
+		procedure_Bs();
 		constructTree(phrase, 2, treeNode::AND_LOGICAL);
 	}
 }
@@ -263,49 +264,50 @@ void parser::sym_Bt(){
 
 
 /* Bp   -> A (’gr’ | ’>’ ) A                       => ’gr’
-     -> A (’ge’ | ’>=’) A                       => ’ge’
-     -> A (’ls’ | ’<’ ) A                       => ’ls’
-     -> A (’le’ | ’<=’) A                       => ’le’
-     -> A ’eq’ A                                => ’eq’
-     -> A ’ne’ A                                => ’ne’
-     -> A 		*/
-void parser::sym_Bp(){
-		sym_A();
+     	-> A (’ge’ | ’>=’) A                       => ’ge’
+     	-> A (’ls’ | ’<’ ) A                       => ’ls’
+     	-> A (’le’ | ’<=’) A                       => ’le’
+     	-> A ’eq’ A                                => ’eq’
+     	-> A ’ne’ A                                => ’ne’
+     	-> A 		*/
+
+void parser::procedure_Bp(){
+		procedure_A();
 	if (nxtTok->value_token == "gr" || nxtTok->value_token == ">"){
 		if (nxtTok->value_token == "gr")
 			peruse("gr");
 		else if (nxtTok->value_token == ">")
 			peruse(">");
-		sym_A();
+		procedure_A();
 		constructTree("gr", 2, treeNode::GR);
 	}else if (nxtTok->value_token == "ge" || nxtTok->value_token == ">="){
 		if (nxtTok->value_token == "ge")
 			peruse("ge");
 		else if (nxtTok->value_token == ">=")
 			peruse(">=");
-		sym_A();
+		procedure_A();
 		constructTree("ge", 2, treeNode::GE);
 	}else if (nxtTok->value_token == "ls" || nxtTok->value_token == "<"){
 		if (nxtTok->value_token == "ls")
 			peruse("ls");
 		else if (nxtTok->value_token == "<")
 			peruse("<");
-		sym_A();
+		procedure_A();
 		constructTree("ls", 2, treeNode::LS);
 	}else if (nxtTok->value_token == "le" || nxtTok->value_token == "<="){
 		if (nxtTok->value_token == "le")
 			peruse("le");
 		else if (nxtTok->value_token == "<=")
 			peruse("<=");
-		sym_A();
+		procedure_A();
 		constructTree("le", 2, treeNode::LE);
 	}else if (nxtTok->value_token == "eq"){
 		peruse("eq");
-		sym_A();
+		procedure_A();
 		constructTree("eq", 2, treeNode::EQ);
 	}else if (nxtTok->value_token == "ne"){
 		peruse("ne");
-		sym_A();
+		procedure_A();
 		constructTree("ne", 2, treeNode::NE);
 	}
 }
@@ -313,11 +315,12 @@ void parser::sym_Bp(){
 
 
 /* At   -> At ’*’ Af                               => ’*’
-     -> At ’/’ Af                               => ’/’
-     -> Af    */
-void parser::sym_At(){
+     	-> At ’/’ Af                               => ’/’
+     	-> Af    */
+
+void parser::procedure_At(){
 		string treeStr;
-	sym_Af();
+	procedure_Af();
 	string str_star="*";
 	string str_slash="/";
 	while(nxtTok->value_token == str_star || nxtTok->value_token == str_slash){
@@ -328,42 +331,44 @@ void parser::sym_At(){
 			peruse(str_slash);
 			treeStr = str_slash;
 		}
-		sym_Af();
+		procedure_Af();
 		constructTree(treeStr, 2, treeStr == str_star ? treeNode::MULTIPLY: treeNode::DIVIDE);
 	}
 }
 
 /* R    -> R Rn                                    => ’gamma’
-     -> Rn   */
-void parser::sym_R() {
-    sym_Rn();
+     	-> Rn   */
+
+void parser::procedure_R() {
+    procedure_Rn();
 
     while ((nxtTok->tokType == TOK_IDENTIFIER || nxtTok->tokType == TOK_INTEGER ||
             nxtTok->tokType == TOK_STRING || nxtTok->value_token == "(" ||
             nxtTok->value_token == "false" || nxtTok->value_token == "true" ||
             nxtTok->value_token == "nil" || nxtTok->value_token == "dummy") && !chkKw(nxtTok->value_token)) {
-        sym_Rn();
+        procedure_Rn();
         constructTree("gamma", 2, treeNode::GAMMA);
     }
 }
 
 
 /* A    -> A ’+’ At                                => ’+’
-     -> A ’-’ At                                => ’-’
-     ->   ’+’ At
-     ->   ’-’ At                                => ’neg’
-     -> At 			*/
-void parser::sym_A(){
+     	-> A ’-’ At                                => ’-’
+     	->   ’+’ At
+     	->   ’-’ At                                => ’neg’
+     	-> At 			*/
+
+void parser::procedure_A(){
 		string treeStr;
 	if (nxtTok->value_token == "+"){
 		peruse("+");
-		sym_At();
+		procedure_At();
 	} else if (nxtTok->value_token == "-"){
 		peruse("-");
-		sym_At();
+		procedure_At();
 		constructTree ("neg", 1, treeNode::NEG);
 	} else {
-		sym_At();
+		procedure_At();
 	}
 	while (nxtTok->value_token == "+" || nxtTok->value_token == "-"){
 		if (nxtTok->value_token == "+"){
@@ -373,34 +378,36 @@ void parser::sym_A(){
 			peruse("-");
 			treeStr = "-";
 		}
-		sym_At();
+		procedure_At();
 		constructTree(treeStr, 2, treeStr == "+" ? treeNode::ADD: treeNode::SUBTRACT);
 	}
 }
 
 
 /* Af   -> Ap ’**’ Af                              => ’**’
-     -> Ap 		*/
-void parser::sym_Af(){
-		sym_Ap();
+     	-> Ap 		*/
+
+void parser::procedure_Af(){
+		procedure_Ap();
 		string phr="**";
 	if (nxtTok->value_token == phr){
 		peruse(phr);
-		sym_Af();
+		procedure_Af();
 		constructTree(phr, 2, treeNode::EXPONENTIAL);
 	}
 }
 
 /* Ap   -> Ap ’@’ ’<IDENTIFIER>’ R                 => ’@’
-     -> R 		*/
-void parser::sym_Ap(){
-		sym_R();
+     	-> R 		*/
+
+void parser::procedure_Ap(){
+		procedure_R();
 		string phrase="@";
 	while (nxtTok->value_token == phrase){
 		peruse(phrase);
 		constructTree(nxtTok->value_token, 0, treeNode::IDENTIFIER);
 		peruse(nxtTok->value_token);
-		sym_R();
+		procedure_R();
 		constructTree(phrase, 3, treeNode::AT);
 	}
 }
@@ -410,17 +417,18 @@ void parser::sym_Ap(){
 
 
 /* Rn   -> ’<IDENTIFIER>’
-     -> ’<INTEGER>’
-     -> ’<STRING>’
-     -> ’true’                                  => ’true’
-     -> ’false’                                 => ’false’
-     -> ’nil’                                   => ’nil’
-     -> ’(’ E ’)’
-     -> ’dummy’                                 => ’dummy’  */
-void parser::sym_Rn(){
+     	-> ’<INTEGER>’
+     	-> ’<STRING>’
+     	-> ’true’                                  => ’true’
+     	-> ’false’                                 => ’false’
+     	-> ’nil’                                   => ’nil’
+     	-> ’(’ E ’)’
+     	-> ’dummy’                                 => ’dummy’  */
+
+void parser::procedure_Rn(){
 	if("(" == nxtTok->value_token){
 		peruse("(");
-		sym_E();
+		procedure_E();
 		peruse(")");
 	}
 	else if(TOK_STRING == nxtTok->tokType||TOK_IDENTIFIER == nxtTok->tokType || TOK_INTEGER == nxtTok->tokType){
@@ -461,39 +469,42 @@ void parser::sym_Rn(){
 }
 
 /*      Dr   -> ’rec’ Db                                => ’rec’
-         -> Db 			*/
-void parser::sym_Dr(){
+         	 -> Db 			*/
+
+void parser::procedure_Dr(){
 		string phrase="rec";
 		if (nxtTok->value_token == phrase){
 		peruse(phrase);
-		sym_Db();
+		procedure_Db();
 		constructTree(phrase, 1, treeNode::REC);
 	} else {
-		sym_Db();
+		procedure_Db();
 	}
 }
 
 /* D    -> Da ’within’ D                           => ’within’
-     -> Da   */
-void parser::sym_D(){
-		sym_Da();
+     	-> Da   */
+
+void parser::procedure_D(){
+		procedure_Da();
 		string phr="within";
 	if (nxtTok->value_token == phr){
 		peruse(phr);
-		sym_D();
+		procedure_D();
 		constructTree(phr, 2, treeNode::WITHIN);
 	}
 }
 
 /*     Da   -> Dr ( ’and’ Dr )+                        => ’and’
-         -> Dr 		*/
-void parser::sym_Da(){
+         	-> Dr 		*/
+
+void parser::procedure_Da(){
 		int inc = 0;
 		string phr="and";
-	sym_Dr();
+	procedure_Dr();
 	while (nxtTok->value_token == phr){
 		peruse(phr);
-		sym_Dr();
+		procedure_Dr();
 		inc=inc+1;
 	}
 	if (inc >0)
@@ -503,9 +514,10 @@ void parser::sym_Da(){
 
 
 /* Db   -> Vl ’=’ E                             => ’=’
-     -> ’<IDENTIFIER>’ Vb+ ’=’ E              => ’fcn_form’
-     -> ’(’ D ’)’ 		*/
-void parser::sym_Db() {
+     	-> ’<IDENTIFIER>’ Vb+ ’=’ E             => ’fcn_form’
+     	-> ’(’ D ’)’ 		*/
+
+void parser::procedure_Db() {
     if (nxtTok->value_token == "(") {
         parseParenthesizedDefinition();
     } else if (nxtTok->tokType == TOK_IDENTIFIER) {
@@ -515,7 +527,7 @@ void parser::sym_Db() {
 
 void parser::parseParenthesizedDefinition() {
     peruse("(");
-    sym_D();
+    procedure_D();
     peruse(")");
 }
 
@@ -531,31 +543,31 @@ void parser::parseIdentifierDefinition() {
 }
 
 void parser::parseBindingDefinition() {
-    sym_Vl();
+    procedure_Vl();
     peruse("=");
-    sym_E();
+    procedure_E();
     constructTree("=", 2, treeNode::BINDING);
 }
 
 void parser::parseFunctionFormDefinition() {
     int numArgs = 0;
     do {
-        sym_Vb();
+        procedure_Vb();
         numArgs++;
     } while (nxtTok->value_token == "(" || nxtTok->tokType == TOK_IDENTIFIER);
 
     peruse("=");
-    sym_E();
-    constructTree("function_form", numArgs + 2, treeNode::FCN_FORM);
+    procedure_E();
+    constructTree("fcn_form", numArgs + 2, treeNode::FCN_FORM);
 }
 
 
 
-/*    Vb   -> ’<IDENTIFIER>’
-         -> ’(’ Vl ’)’
-         -> ’(’ ’)’                                 => ’()’    */
+/*    Vb   	-> ’<IDENTIFIER>’
+         	-> ’(’ Vl ’)’
+         	-> ’(’ ’)’                                 => ’()’    */
 
-void parser::sym_Vb() {
+void parser::procedure_Vb() {
     if (nxtTok->tokType == TOK_IDENTIFIER) {
         parseIdentifier();
     } else if (nxtTok->value_token == "(") {
@@ -577,7 +589,7 @@ void parser::parseParenthesizedVb() {
     } else if (nxtTok->tokType == TOK_IDENTIFIER) {
         constructTree(nxtTok->value_token, 0, treeNode::IDENTIFIER);
         peruse(nxtTok->value_token);
-        sym_Vl();
+        procedure_Vl();
         peruse(")");
     }
 }
@@ -585,7 +597,8 @@ void parser::parseParenthesizedVb() {
 
 
 /*   Vl   -> ’<IDENTIFIER>’ list ’,’                 => ’,’?     */
-void parser::sym_Vl(){
+
+void parser::procedure_Vl(){
 		int inc = 0;
 	while (nxtTok->value_token == ","){
 		peruse(",");

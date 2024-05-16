@@ -24,27 +24,27 @@ private:
     tokenData *nxtTok;
 
 
-	void sym_E();
-	void sym_Ew();
-	void sym_T();
-	void sym_Ta();
-	void sym_Tc();
-	void sym_B();
-	void sym_Bt();
-	void sym_Bs();
-	void sym_Bp();
-	void sym_A();
-	void sym_At();
-	void sym_Af();
-	void sym_Ap();
-	void sym_R();
-	void sym_Rn();
-	void sym_D();
-	void sym_Da();
-	void sym_Dr();
-	void sym_Db();
-	void sym_Vb();
-	void sym_Vl();
+	void procedure_E();
+	void procedure_Ew();
+	void procedure_T();
+	void procedure_Ta();
+	void procedure_Tc();
+	void procedure_B();
+	void procedure_Bt();
+	void procedure_Bs();
+	void procedure_Bp();
+	void procedure_A();
+	void procedure_At();
+	void procedure_Af();
+	void procedure_Ap();
+	void procedure_R();
+	void procedure_Rn();
+	void procedure_D();
+	void procedure_Da();
+	void procedure_Dr();
+	void procedure_Db();
+	void procedure_Vb();
+	void procedure_Vl();
 
 	void parse();
 	void standardize(treeNode*);

@@ -1,13 +1,12 @@
 #include "lexAnalyser.h"
 #include "treeNode.h"
-
 #include <string>
 #include <stdio.h>
 #include <cstdlib>
 #include <iostream>
 #include <vector>
 
-class Control{
+class Control{    //define enum values for the control objects
 public:
     enum Type{
     ENV = 1 ,
@@ -45,12 +44,12 @@ public:
     TUPLE = 33
     };
   
-  //Type of the control object
-  Type type;
-  //Value of the control object
-  string ctrlVal;
-  //Enviorenment that the control object belongs to
-  int associatedENV;
+  
+  Type type; //Type of the control object
+ 
+  string ctrlVal;  //Value of the control object
+  
+  int associatedENV; //Enviorenment that the control object belongs to
   int index;
   
   vector<Control *> *ctrlStruct;
