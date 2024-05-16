@@ -1,4 +1,3 @@
-
 #include <string>
 #ifndef TOKEN_H_
 #define TOKEN_H_
@@ -29,4 +28,4 @@ public:
 	int lineCount, charCount;
 };
 
-#endif /* TOKEN_H_ */
+#endif 
