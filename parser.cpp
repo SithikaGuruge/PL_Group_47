@@ -40,6 +40,7 @@ void parser::printNode(treeNode* node, int depth = 0) {
         std::cout << ".";
 
     // Print the node
+	std::cout << node->type << " ";
     std::cout << node->nodeString << std::endl;
 
     // Print children
