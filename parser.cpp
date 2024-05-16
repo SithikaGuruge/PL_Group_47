@@ -1,6 +1,7 @@
 
 
 #include "parser.h"
+int depthhh = 0;
 
 parser::parser(lexAnalyser* lxr){
 	this->lexical_analyser = lxr;
@@ -10,13 +11,16 @@ parser::parser(lexAnalyser* lxr){
 parser::~parser() {
 }
 
+void parser::process_ast(){
+	parse();
+	printNode(stk_of_tree.top(),0);
+}
 
 void parser::process(){
-       parse();
-	   // getting ready for standard tree and drive CSE machine
-    TreeStandardizer *ts = new TreeStandardizer(stk_of_tree.top());
-    CSEMachine* cs_mac = new CSEMachine();
-    cs_mac->run(stk_of_tree.top());
+	parse();
+	TreeStandardizer *ts = new TreeStandardizer(stk_of_tree.top());
+	CSEMachine* cs_mac = new CSEMachine();
+	cs_mac->run(stk_of_tree.top());
 }
 // **************************************here
 void parser::parse(){
@@ -30,7 +34,7 @@ void parser::parse(){
 	sym_E(); 
 }
 
-void printNode(treeNode* node, int depth = 0) {
+void parser::printNode(treeNode* node, int depth = 0) {
     // Print indentation
     for (int i = 0; i < depth; ++i)
         std::cout << ".";
@@ -45,15 +49,6 @@ void printNode(treeNode* node, int depth = 0) {
     if (node->sibling) {
         printNode(node->sibling, depth);
     }
-}
-
-void parser::printAST() {
-    // Print the AST
-    if (stk_of_tree.empty()) {
-        std::cout << "Empty AST" << std::endl;
-        return;
-    }
-    printNode(stk_of_tree.top());
 }
 
 

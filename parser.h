@@ -13,8 +13,9 @@ public:
 
 	parser (lexAnalyser*);
     void process();
+	void process_ast();
 	virtual ~parser();
-	void printAST();
+	void printNode(treeNode*,int);
 	
 
 private:
