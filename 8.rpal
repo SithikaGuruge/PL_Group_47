@@ -1,0 +1,2 @@
+let rec sum number = number gr 0 -> number + sum(number-1) | number eq 0 -> 0 |'error'
+in Print(sum 21)

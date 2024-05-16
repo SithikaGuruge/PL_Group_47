@@ -1,0 +1,8 @@
+let rec change (number, x) = number gr 0 -> change (number/10, (x*10 + number - (number/10)*10)) | x
+	within
+		rec Palindrome_Numbers(a, b) = 
+			b ls a -> '' |
+			change (a,0) ne a -> Palindrome_Numbers(a+1,b) |
+			(Palindrome_Numbers(a+1,b), print(' '), print(a))							
+in Print
+Palindrome_Numbers(190,500)

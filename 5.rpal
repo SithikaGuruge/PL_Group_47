@@ -1,0 +1,3 @@
+let palindrome number = number eq change (number, 0) -> 'Palindrome' | 'Not a Palindrome'
+    where rec change (n, x) = n gr 0 -> change (n/10, (x*10 + (n-(n/10)*10))) | x
+in Print(palindrome 21112)

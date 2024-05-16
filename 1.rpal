@@ -1,0 +1,4 @@
+let sign number = number gr 0 -> 
+    '1' | 
+    '2' 
+in Print(sign (16))

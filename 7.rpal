@@ -1,0 +1,6 @@
+let rec check_whether_odd_or_even number = 
+    number eq 0 -> 'Not odd or even' |
+	    number eq 1 -> 'Odd' |
+            number eq 2 -> 'Even' |
+			    number gr 0 -> check_whether_odd_or_even (number-2) | check_whether_odd_or_even (-number) 					
+in Print(check_whether_odd_or_even 3)

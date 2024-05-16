@@ -1,0 +1,2 @@
+let rec Factorial number = number ls 0 -> 'error' | number eq 1 -> 1 | number * Factorial (number-1) 
+in Print (Factorial 8) 

@@ -1,0 +1,16 @@
+let fibonacci_given_range (lower, upper) = 
+	upper gr lower -> 
+		lower gr 1 ->
+			calculate_fib_number (lower, upper, 1, 0) 
+			|
+			(calculate_fib_number (lower, upper, 1, 0), Print(' '), Print(1), Print(' '), Print(0)) 
+		| 
+		'wrong range'
+where rec calculate_fib_number (lower, upper, x, y) = 
+	(x+y) ls lower  -> calculate_fib_number (lower, upper, x + y, x) |
+		(x+y) ls upper -> ((calculate_fib_number (lower, upper, x + y, x)), Print(' '), Print(x+y)) | nil			
+in
+fibonacci_given_range (18, 46)
+
+
+

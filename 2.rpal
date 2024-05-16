@@ -1,0 +1,3 @@
+let greatest (Number1,Number2,Number3) = Number1 gr Number2 -> Number1 gr Number3 -> Number1 | Number3 | Number2 gr Number3 -> Number2 | Number3 
+in Print (greatest(50,150,165))
+
