@@ -23,4 +23,4 @@ public:
     virtual ~TreeStandardizer();
 };
 
-#endif /* TREESTANDARDIZER_H_ */
+#endif 
