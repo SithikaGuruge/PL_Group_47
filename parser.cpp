@@ -56,7 +56,7 @@ void parser::printNode(treeNode* node, int depth = 0) {
 
 #include <unordered_set> // Include the required header for std::unordered_set
 
-bool parser::chkKw(string x) {  //check whether given string is a keyword
+bool parser::check_keyword(string x) {  //check whether given string is a keyword
     static const std::unordered_set<string> keywords = {
         "in", "where", ".", "aug", "and", "or", "&", "not", "gr", "ge", "ls", "le",
         "eq", "ne", "+", "-", "*", "/", "**", "@", "within", "rec", "let", "fn"
@@ -345,7 +345,7 @@ void parser::procedure_R() {
     while ((nxtTok->tokType == TOK_IDENTIFIER || nxtTok->tokType == TOK_INTEGER ||
             nxtTok->tokType == TOK_STRING || nxtTok->value_token == "(" ||
             nxtTok->value_token == "false" || nxtTok->value_token == "true" ||
-            nxtTok->value_token == "nil" || nxtTok->value_token == "dummy") && !chkKw(nxtTok->value_token)) {
+            nxtTok->value_token == "nil" || nxtTok->value_token == "dummy") && !check_keyword(nxtTok->value_token)) {
         procedure_Rn();
         constructTree("gamma", 2, treeNode::GAMMA);
     }

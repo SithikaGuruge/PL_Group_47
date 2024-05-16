@@ -53,7 +53,7 @@ private:
 	void buildLetTree();
 	void buildLambdaTree(int);
     void peruse(string); 
-	bool chkKw(string); 
+	bool check_keyword(string); 
 
 	void parseParenthesizedDefinition();
 	void parseIdentifierDefinition();
