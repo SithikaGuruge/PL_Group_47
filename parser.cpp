@@ -40,8 +40,21 @@ void parser::printNode(treeNode* node, int depth = 0) {
         std::cout << ".";
 
     // Print the node
-    std::cout << node->nodeString << std::endl;
+	switch (node->type) {
+    case 35:
+        std::cout << "<ID:" + node->nodeString + ">" << std::endl;
+		break;
+    case 37:
+        std::cout << "<INT:" + node->nodeString + ">"<< std::endl;
+		break;
+	case 36:
+		std::cout << "<STR:" + node->nodeString + ">"<< std::endl;
+		break;
+    default:
+        std::cout << node->nodeString << std::endl;
+}
 
+			
     // Print children
     if (node->child) {
         printNode(node->child, depth + 1);
