@@ -11,15 +11,15 @@ void Environment::ParentEnvironment(Environment* parent){
     this->parent = parent;
 }
 
-/*   Search a value of a variable in the current enviorenment and
-     if that variable cannot be found in the current env. search for it in the parent enviorenments  
+/*  Look for a variable's value in the present environment; 
+if the variable isn't found there, search for it in the enclosing parent environments.
 */
 Control* Environment::getVarValueFromEnv(string str) {
     map<string, Control *>::iterator temp_iterator = variables_to_actualVAlues_mapping.find(str);
-    //If the variable could not be found
-    if(variables_to_actualVAlues_mapping.end() == temp_iterator)
+    
+    if(variables_to_actualVAlues_mapping.end() == temp_iterator) //If the variable could not be found in the current environment,
         return parent->getVarValueFromEnv(str);
-    //If the symbol is found in the current environment,
+   
     else
         return (*temp_iterator).second;
 }
