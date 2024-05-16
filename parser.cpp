@@ -558,7 +558,7 @@ void parser::parseFunctionFormDefinition() {
 
     peruse("=");
     procedure_E();
-    constructTree("function_form", numArgs + 2, treeNode::FCN_FORM);
+    constructTree("fcn_form", numArgs + 2, treeNode::FCN_FORM);
 }
 
 
