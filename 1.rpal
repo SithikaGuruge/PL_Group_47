@@ -1,4 +1,1 @@
-let sign number = number gr 0 -> 
-    '1' | 
-    '2' 
-in Print(sign (16))
+let SignNumber n = (n gr 0) -> 'Positive' | 'Negative' in Print(SignNumber 3)

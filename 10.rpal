@@ -1,0 +1,1 @@
+let innerProduct(A,B) = PInner (A,B,Order A) where rec PInner (A,B,L) = L eq 0 -> 0 | PInner (A,B,L-1)+ A L * B L in Print(innerProduct((1,2,3),(4,5,6)))

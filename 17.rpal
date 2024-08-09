@@ -1,0 +1,8 @@
+let rec PerfectSqure n i = 
+n eq (i**2) -> true |
+    n < (i**2)-> false| 
+       PerfectSqure n (i+1) 
+        in Print(PerfectSqure 9 1)
+
+// 9 -> true
+// 8 -> false

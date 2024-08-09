@@ -1,0 +1,3 @@
+// let OddEven n = (n- n/2*2) eq 0 -> 'Even' | 'Odd' in Print(OddEven 11)
+
+let rec RecOddEven n = n eq 1 -> 'Odd' | n eq 0 -> 'Even' | RecOddEven (n-2) in Print(RecOddEven 12)

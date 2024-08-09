@@ -1,0 +1,1 @@
+let getGrades marks = not Isinteger(marks) -> 'Invalid Input' | marks le 0 or marks gr 100 -> 'Enter a Corrrect Mark' | marks ge 75 -> 'A' | marks ge 65 -> 'B' | marks ge 55 -> 'C' | 'W' in Print(getGrades 'jsdnkfncs')

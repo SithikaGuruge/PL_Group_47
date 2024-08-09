@@ -1,0 +1,7 @@
+let oddEven l = OddOrEvenList l 1
+    where rec OddOrEvenList list n = 
+        n > Order list -> nil | 
+        (OddOrEvenList list (n+1),Print ' ',Print(OddOrEven (list n)))
+        where OddOrEven number = (number - number/2*2) eq 0 -> 'Even' |
+            'odd'
+        in oddEven (3,4,5)

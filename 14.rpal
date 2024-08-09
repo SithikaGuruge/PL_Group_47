@@ -1,0 +1,8 @@
+let rec SumUpToSeries a b = 
+    a > b -> nil | 
+    (Print(sumOfInt a),Print(' '),SumUpToSeries (a+1) b) 
+    where rec sumOfInt num = 
+    not(Isinteger(num)) -> 'Error'| 
+    num le 0 -> 'Enter a Positive Number' | 
+        num eq 1 -> 1 | 
+            num + sumOfInt(num-1) in SumUpToSeries 3 6
