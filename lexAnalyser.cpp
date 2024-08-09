@@ -2,73 +2,74 @@
 
 using namespace std;
 
+// Constructor for lexAnalyser class, initializes file pointer and counts
 lexAnalyser::lexAnalyser(std::ifstream* source) {
-	Rpalfile = source; //change to buffer
-	lineCount = 1;
-	charCount = 1;
+    Rpalfile = source; //change to buffer
+    lineCount = 1;
+    charCount = 1;
 }
 
-//This method is used to give a tokenData to each word in the rpal code
+// This method fetches the next token from the input stream
 tokenData* lexAnalyser::getNextToken(){
-	//create a new tokenData
-	tokenData* temp_token = new tokenData();
-	int nextChar=Rpalfile->peek();
+    // Create a new tokenData object
+    tokenData* temp_token = new tokenData();
+    int nextChar=Rpalfile->peek();
 
-	//identifier tokenData
-	if (isalpha(nextChar)){
-		temp_token->value_token = tokenIdentifier();
+    // Identifier token
+    if (isalpha(nextChar)){
+        temp_token->value_token = tokenIdentifier();
         temp_token->tokType = TOK_IDENTIFIER;
-	} 
-	//integer tokenData
-	else if (isdigit(nextChar)) {
-		temp_token->value_token = tokenInteger();
-		temp_token->tokType = TOK_INTEGER;
-	} 
-	//string tokenData
-	else if ('\'' == nextChar){
-		temp_token->value_token = tokenStrings();
-		temp_token->tokType = TOK_STRING;
-	} 
-	//Space (delete tokenData) -- will be deleted 
-	else if (isspace(nextChar)){
-		temp_token->value_token = tokenSpaces();
-		temp_token->tokType = TOK_DELETE;
-	} 
-	//Punction tokenData
-	else if (isPunction(nextChar)){
-		char readNext;
-		Rpalfile->get(readNext);
-		temp_token->value_token = readNext;
-		temp_token->tokType = TOK_PUNCTION;
-		charCount++;
-	} 
-	
-	else if ('/' == nextChar) {
-		temp_token->value_token = tokenComment();
-		//Comment type tokenData -- hence DELETE
-		if (temp_token->value_token.compare("/")){
-			temp_token->tokType = TOK_DELETE;
-		} 
-		// Slash(/) Operator
-		else{
-			temp_token->tokType = TOK_OPERATOR;
-		}
-	} 
-	// Other operator without slash(/) operator
-	else if (isOperatorSymbol(nextChar)){
-		temp_token->value_token = tokenOperator();
-		temp_token->tokType = TOK_OPERATOR;
-	} 
-	//End of File
-	else if (EOF == nextChar) {
-		temp_token->tokType = TOK_EOF;
-	}
-	temp_token->charCount = charCount;
-	temp_token->lineCount = lineCount;
-	return temp_token;
+    } 
+    // Integer token
+    else if (isdigit(nextChar)) {
+        temp_token->value_token = tokenInteger();
+        temp_token->tokType = TOK_INTEGER;
+    } 
+    // String token
+    else if ('\'' == nextChar){
+        temp_token->value_token = tokenStrings();
+        temp_token->tokType = TOK_STRING;
+    } 
+    // Space (delete token) -- will be deleted 
+    else if (isspace(nextChar)){
+        temp_token->value_token = tokenSpaces();
+        temp_token->tokType = TOK_DELETE;
+    } 
+    // Punctuation token
+    else if (isPunction(nextChar)){
+        char readNext;
+        Rpalfile->get(readNext);
+        temp_token->value_token = readNext;
+        temp_token->tokType = TOK_PUNCTION;
+        charCount++;
+    } 
+    // Check for '/'
+    else if ('/' == nextChar) {
+        temp_token->value_token = tokenComment();
+        // Comment type token -- hence DELETE
+        if (temp_token->value_token.compare("/")){
+            temp_token->tokType = TOK_DELETE;
+        } 
+        // Slash(/) Operator
+        else{
+            temp_token->tokType = TOK_OPERATOR;
+        }
+    } 
+    // Other operator without slash(/) operator
+    else if (isOperatorSymbol(nextChar)){
+        temp_token->value_token = tokenOperator();
+        temp_token->tokType = TOK_OPERATOR;
+    } 
+    // End of File
+    else if (EOF == nextChar) {
+        temp_token->tokType = TOK_EOF;
+    }
+    temp_token->charCount = charCount;
+    temp_token->lineCount = lineCount;
+    return temp_token;
 }
 
-//This method is used to create a tokenData of the type IDENTIFIER after the classification step
+// This method creates a tokenData of type IDENTIFIER
 string lexAnalyser::tokenIdentifier() {
     string tokStr = "";
     char nextChar;
@@ -84,7 +85,8 @@ string lexAnalyser::tokenIdentifier() {
     }
     return tokStr;
 }
-//This method is used to create a tokenData of the type INTEGER after the classification step
+
+// This method creates a tokenData of type INTEGER
 string lexAnalyser::tokenInteger() {
     string tokStr = "";
     char nextChar;
@@ -101,7 +103,7 @@ string lexAnalyser::tokenInteger() {
     return tokStr;
 }
 
-//This method is used to check whether a given character is an operator symbol or not
+// Check whether a character is an operator symbol or not
 bool lexAnalyser::isOperatorSymbol(char c) {
     const char operators[] = {'+', '-', '*', '<', '>', '&', '.', '@', '/', ':', '=', '~', '|','$', '!', '#', '%', '^', '_', '[', ']', '{', '}', '"', '`', '?'};
     for (char op : operators) {
@@ -111,7 +113,8 @@ bool lexAnalyser::isOperatorSymbol(char c) {
     }
     return false;
 }
-//This method is used to create a tokenData of the type OPERATOR after the classification step
+
+// This method creates a tokenData of type OPERATOR
 string lexAnalyser::tokenOperator() {
     string tokStr = "";
     char nextPeek;
@@ -128,33 +131,34 @@ string lexAnalyser::tokenOperator() {
     }
     return tokStr;
 }
-//This method is used to create a tokenData of the type STRING after the classification step
+
+// This method creates a tokenData of type STRING
 string lexAnalyser::tokenStrings(){
-	string tokStr= "";
-	char nextPeek;
-	char nextChar;
-	while (!(EOF == nextPeek) && !(nextPeek == '\'')){
-		Rpalfile->get(nextChar);
-		tokStr += nextChar;
-		charCount++;
-		nextPeek = Rpalfile->peek();
-		if (nextChar == '\\'){
-		    if ((nextPeek == 't' || nextPeek == 'n' || nextPeek == '\\' || nextPeek == '\''))
-		    {
-		        continue; 
-		    }
-			else {
-		        printf ("Error\n");
-		        exit(0);
-		    }
-		}
-	} 
-	Rpalfile->get(nextChar);
-	tokStr += nextChar;
-	return tokStr;
+    string tokStr= "";
+    char nextPeek;
+    char nextChar;
+    while (!(EOF == nextPeek) && !(nextPeek == '\'')){
+        Rpalfile->get(nextChar);
+        tokStr += nextChar;
+        charCount++;
+        nextPeek = Rpalfile->peek();
+        if (nextChar == '\\'){
+            if ((nextPeek == 't' || nextPeek == 'n' || nextPeek == '\\' || nextPeek == '\''))
+            {
+                continue; 
+            }
+            else {
+                printf ("Error\n");
+                exit(0);
+            }
+        }
+    } 
+    Rpalfile->get(nextChar);
+    tokStr += nextChar;
+    return tokStr;
 }
 
-//This method is used to check whether a given character is an punctuation (i .e ; or  ( or ) or ,) or not
+// Check whether a character is a punctuation
 bool lexAnalyser::isPunction(char c){
  const char punctuations[] = {'(', ')', ';', ','};
     for (char punc : punctuations) {
@@ -167,11 +171,14 @@ bool lexAnalyser::isPunction(char c){
 
 lexAnalyser::~lexAnalyser() {
 }
+
+// Reset lexer to the beginning of the file
 void lexAnalyser::lexerReset(){
-	Rpalfile->clear();
-	Rpalfile->seekg(0, ios::beg);
+    Rpalfile->clear();
+    Rpalfile->seekg(0, ios::beg);
 }
-//This method is used to create a tokenData of the type SPACES after the classification step
+
+// This method creates a tokenData of type SPACES
 string lexAnalyser::tokenSpaces() {
     string tokStr = "";
     char nextPeek;
@@ -195,26 +202,29 @@ string lexAnalyser::tokenSpaces() {
 
     return tokStr;
 }
-//This method is used to create a tokenData of the type COMMENT after the classification step
-string lexAnalyser::tokenComment(){
-	string tokStr= "";
-	char nextPeek;
-	char nextChar;
-	Rpalfile->get(nextChar);
-	charCount++;
-	tokStr += nextChar;
-	nextPeek = Rpalfile->peek();
-	if ('/' == nextPeek){
-		Rpalfile->get(nextChar);
-		tokStr += nextChar;
-		while (!(EOF == nextPeek) && !('\n' == nextPeek || '\r' == nextPeek)){
-			Rpalfile->get(nextChar);
-			tokStr += nextChar;
-			nextPeek = Rpalfile->peek();
-		} 
-		
-	} 
-	return tokStr;
-	
-}
 
+// This method creates a tokenData of type COMMENT
+string lexAnalyser::tokenComment(){
+    // Initialize an empty string to store the comment token
+    string tokStr = "";
+    char nextPeek;
+    char nextChar;
+    
+    Rpalfile->get(nextChar);
+    charCount++;
+    tokStr += nextChar;
+    nextPeek = Rpalfile->peek();
+    
+    if ('/' == nextPeek){
+        Rpalfile->get(nextChar);
+        tokStr += nextChar;
+        
+        while (!(EOF == nextPeek) && !('\n' == nextPeek || '\r' == nextPeek)){
+            Rpalfile->get(nextChar);
+            tokStr += nextChar;
+            nextPeek = Rpalfile->peek();
+        } 
+    } 
+
+    return tokStr;
+}

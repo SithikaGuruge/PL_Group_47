@@ -1,0 +1,9 @@
+let rec palSeries a b = a > b -> nil |
+    palindrome a -> (palSeries (a+1) b , Print(' '),Print(a)) | palSeries (a+1) b
+where palindrome number = number eq getReverse number 0 -> true |
+    false
+where rec getReverse n reverse = n eq 0 -> reverse |
+    getReverse (n/10) (reverse * 10 + n - n/10*10)
+        in palSeries 1 150
+
+// pal series

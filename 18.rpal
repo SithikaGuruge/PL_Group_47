@@ -1,0 +1,8 @@
+let sumTuple A B = vectorSum A B 1 nil
+where rec vectorSum A B i final = 
+    i > Order A -> final | 
+        vectorSum A B (i+1) (final aug (A i + B i)) 
+            in Print(sumTuple (1,2,3) (4,5,6))
+
+
+// (1,2,3) (4,5,6) -> (5, 7, 9)
